@@ -1,9 +1,10 @@
 {
   "name": "purg",
   "displayName": "Purg",
-  "publisher": "CyrilMak",
+  "publisher": "purg",
   "description": "A lightweight code refurbisher and organizer.",
   "version": "0.0.4",
+  "repository": "https://github.com/purgglobal/vscode_extension.git",
   "engines": {
     "vscode": "^1.102.0"
   },
