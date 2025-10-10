@@ -40,9 +40,10 @@ let defluffText = function (text) {
 	return defluffedText
 }
 
-let indentationSpacing = "    ";
+let indentationSpacing = "	";
 
 /*  CSS. */
+
 
 let preformatCss = function (inputCode) {
 	let preformattedCode = "";
@@ -77,6 +78,8 @@ let preformatCss = function (inputCode) {
 	
 	return preformattedCode;
 }
+
+
 let formatCss = function (inputCode, defaultIndentationLevel=0) {
 	let formattedCode = "";
 	
@@ -99,14 +102,15 @@ let formatCss = function (inputCode, defaultIndentationLevel=0) {
 				if (prevLetter.trim () == "") {
 					formattedLetter = ``;
 				}
-				if (letter == `\n`) {
+				if (letter == `\n` || letter == "\t") {
 					formattedLetter = ``;
 				}
 			} else {
 				formattedLetter = ``;
 			}
 			if (insideADeclarationContent) {
-				if (prevLetter.trim () == "") {
+				//This block of code is so that we can allow for a single space in declaration
+				if (prevLetter.trim () == "" || prevLetter == ":") {
 					formattedLetter = ``;
 				} else {
 					formattedLetter = ` `;
@@ -140,7 +144,7 @@ let formatCss = function (inputCode, defaultIndentationLevel=0) {
 			indentationLevel -= 1;
 			
 			let spacing = (padText ("", indentationSpacing, (defaultIndentationLevel+indentationLevel)));
-			formattedLetter = `\n`+spacing+`}\n`;
+			formattedLetter = `\n`+spacing+`}\n\n`;
 			
 			insideASelectorContent = false;
 		} else if (letter == `:`) {
@@ -154,7 +158,7 @@ let formatCss = function (inputCode, defaultIndentationLevel=0) {
 					if (inputCode[a] == `}`) {
 						formattedLetter = `;`;
 					} else {
-						spacing = (padText ("", indentationSpacing, (defaultIndentationLevel+indentationLevel)));
+						let spacing = (padText ("", indentationSpacing, (defaultIndentationLevel+indentationLevel)));
 						formattedLetter = `;\n`+spacing;
 					}
 					break;
@@ -169,7 +173,8 @@ let formatCss = function (inputCode, defaultIndentationLevel=0) {
 	return formattedCode;
 }
 
-/* JavaScrpt */
+/*  JavaScript. */
+
 /*
 	The preformatter turns the whole inputCode (which 
 	is a normal text) into code fragments all packed in 
@@ -182,6 +187,7 @@ let formatCss = function (inputCode, defaultIndentationLevel=0) {
 	is a normal text) into code fragments all packed in 
 	an array. "PreformattedCode" is this array.
 */
+
 
 let preformatJs = function (inputCode) {
 	let stringInitiators = ["'", '"', "`"];
@@ -190,7 +196,7 @@ let preformatJs = function (inputCode) {
 				"for", "while", "in"];
 	let specialChars = [":", ";", "!", "?", "*", "+", "-", 
 				"/", "\\", "&&", "||", "(", ")", "{", "}", "[", "]", "=", "==", 
-				"!=", "===", "!=="];
+				"!=", "===", "!==", "."];
 	
 	let preformattedCode = [];
 	let preformattedText = "";
@@ -288,15 +294,15 @@ let formatJs = function (preformattedCode, defaultIndentationLevel=0) { // Prefo
 	let stringInitiators = ["'", '"', "`"];
 	let keywords = ["let", "var", "const", "true", 
 				"false", "break", "continue", "do" , 
-				"for", "while", "in", "if", "else"];
+				"for", "while", "in", "if", "else", "class", "Object"];
 	let newlineKeywords = ["let", "var", "const", "do", 
-				"for", "while"];
+				"for", "while", "class", "Object"];
 	let specialChars = [":", ";", "!", "?", "*", "+", "-", 
 				"/", "&&", "||", "(", "{", "[", "=", "==", 
 				"!=", "===", "!==", "."];
 	let spaceNeedingChars = ["!", "?", "*", "+", "-", 
 				"/", "&&", "||", "=", "==", 
-				"!=", "===", "!==", "."];
+				"!=", "===", "!=="];
 	
 	let variables = [];
 	
@@ -307,40 +313,40 @@ let formatJs = function (preformattedCode, defaultIndentationLevel=0) { // Prefo
 	
 	
 	for (let i = 0; i < preformattedCode.length; i ++) {
-		let codeFragment = preformattedCode [i];
-		let prevCodeFragment = (i > 0) ? (preformattedCode [i-1]) : "";
-		let nextCodeFragment = (i < (preformattedCode.length-1)) ? (preformattedCode [i+1]) : "";
+		let codelet = preformattedCode [i];
+		let prevcodelet = (i > 0) ? (preformattedCode [i-1]) : "";
+		let nextcodelet = (i < (preformattedCode.length-1)) ? (preformattedCode [i+1]) : "";
 		
-		let formattedText = codeFragment;
-		
-		if (insideAComment) { //when we are inside a comment
-			if (codeFragment == "*/") {
+		let formattedText = codelet;
+		if (insideAComment) { //when inside a comment
+			if (codelet == "*/") {
 				formattedText = ("*/" + "\n" + padText ("", indentationSpacing, indentationLevel));
 				
 				insideAComment = false;
 			}
 		} else {
-			if (codeFragment == "{") {
+			if (codelet == "{") {
 				indentationLevel += 1;
 				
 				formattedText = ("{\n" + padText ("", indentationSpacing, (defaultIndentationLevel +indentationLevel)));
-			} else if (codeFragment == "}") {
+			} else if (codelet == "}") {
 				indentationLevel -= 1;
 				
 				formattedText = ("\n" + padText ("}", indentationSpacing, (defaultIndentationLevel +indentationLevel)));
-			} else if (newlineKeywords.indexOf (codeFragment) != -1) {
-				if (prevCodeFragment != "(" && prevCodeFragment != "{") formattedText = ("\n" + padText ("", indentationSpacing, (defaultIndentationLevel +indentationLevel)) + codeFragment);
-				else formattedText = codeFragment;
-			} else if (codeFragment == "/*") {
-				formattedText = formattedText = ("\n" + padText ("/*", indentationSpacing, (defaultIndentationLevel +indentationLevel)));
-				insideAComment = true;
+			} else if (newlineKeywords.indexOf (codelet) != -1) {
+				if (prevcodelet != "(" && prevcodelet != "{") formattedText = ("\n" + padText ("", indentationSpacing, (defaultIndentationLevel +indentationLevel)) + codelet);
+				else formattedText = codelet;
+			} else if (codelet == "//") {
+				formattedText = ("\n" + padText ("//", indentationSpacing, (defaultIndentationLevel +indentationLevel)));
+			} else if (codelet == "/*") {
+				formattedText = ("\n" + padText ("/*", indentationSpacing, (defaultIndentationLevel +indentationLevel)));
 			}
 			
 			
-			if (spaceNeedingChars.indexOf (nextCodeFragment) != -1) {
+			if (spaceNeedingChars.indexOf (nextcodelet) != -1) {
 				formattedText+=" ";
 			} else {
-				if (specialChars.indexOf (nextCodeFragment) == -1) {
+				if (specialChars.indexOf (nextcodelet) == -1 && codelet != ".") {
 					formattedText+=" ";
 				}
 			}
@@ -348,9 +354,18 @@ let formatJs = function (preformattedCode, defaultIndentationLevel=0) { // Prefo
 		
 		formattedCode += formattedText;
 	}
-
+	
 	return formattedCode;
 }
+
+/*  JSON. */
+
+let preformatJson = function (inputCode) {
+	let preformattedCode = inputCode;
+	
+	return preformattedCode;
+}
+
 
 let formatJson = function (inputCode, defaultIndentationLevel=0) {
 	let formattedCode = ``;
@@ -420,6 +435,7 @@ let formatJson = function (inputCode, defaultIndentationLevel=0) {
 				insideAnArray = true;
 				directlyInsideStack.push (`array`);
 			} else if (letter == `{`) {
+				//insideAnArray = true;
 				directlyInsideStack.push (`object`);
 			}
 		} else if (letter == `}` || letter == `]`) { //OBJECT/ARRAY END
@@ -427,7 +443,11 @@ let formatJson = function (inputCode, defaultIndentationLevel=0) {
 			
 			let spacing =  (padText ("", indentationSpacing, (defaultIndentationLevel+indentationLevel)));
 			formattedLetter = `\n`+spacing+letter;
-
+			
+			/*let spacing = defaultIndentationLevel;
+			spacing += duplicateTextNTimes (indentationSpacing, indentationLevel);
+			formattedLetter = spacing+letter`\n`;*/
+			
 			if (letter == `]`) {
 				insideAnArray = false;
 			}
@@ -486,6 +506,8 @@ let preformatHtml = function (inputCode) {
 	let currentAttributeName = "";
 	let currentAttributeValue = "";
 	
+	let selfClosingTags = ["img", "br", "link", "hr", "input", "meta"];
+	
 	for (let i = 0; i < inputCode.length; i ++) {
 		let letter = inputCode [i];
 		let prevLetter = '';
@@ -512,7 +534,6 @@ let preformatHtml = function (inputCode) {
 				insideAClosingTag = false;
 				insideATag = true;
 				
-				indentationLevel += 1;
 				
 				for (let n = (i+1); n < inputCode.length; n ++) {
 					if (inputCode [n].trim () == "" || inputCode [n] == ">") {
@@ -521,6 +542,8 @@ let preformatHtml = function (inputCode) {
 						currentHtmlElement += inputCode [n];
 					}
 				}
+				if (selfClosingTags.indexOf (currentHtmlElement) == -1) indentationLevel += 1;
+				
 				
 				startingPosOfCurrentTag = (i+1);
 				for (let n = (startingPosOfCurrentTag); n < inputCode.length; n ++) {
@@ -544,23 +567,22 @@ let preformatHtml = function (inputCode) {
 			if (insideATag) {
 				if (insideAnOpeningTag) {
 					if (currentHtmlElement == "script") {
-							let posOfEndOfTag;
-							for (let n = (endingPosOfCurrentTag); n < inputCode.length; n ++) {
-								if (inputCode [n+1] == "<" && inputCode [n+2] == '/') {
-									break;
-								} else {
-									posOfEndOfTag = n;
-								}
+						let posOfEndOfTag;
+						for (let n = (endingPosOfCurrentTag); n < inputCode.length; n ++) {
+							if (inputCode [n+1] == "<" && inputCode [n+2] == '/') {
+								break;
+							} else {
+								posOfEndOfTag = n;
 							}
-							let script = inputCode.slice ((endingPosOfCurrentTag+2), (posOfEndOfTag+1));
-							if (currentTagFullContent.indexOf ("javascript") != -1) {
-								preformattedText = (">\n" + formatJs (preformatJs (script), (indentationLevel+2)));
-							} else if (currentTagFullContent.indexOf ("json") != -1) {
-								preformattedText = (">\n" + formatJson (preformatJson (script), (indentationLevel+2)));
-							}
-							
-							i += (posOfEndOfTag-endingPosOfCurrentTag);
-						//}
+						}
+						let script = inputCode.slice ((endingPosOfCurrentTag+2), (posOfEndOfTag+1));
+						if (currentTagFullContent.indexOf ("javascript") != -1) {
+							preformattedText = (">\n" + formatJs (preformatJs (script), (indentationLevel+2)));
+						} else if (currentTagFullContent.indexOf ("json") != -1) {
+							preformattedText = (">\n" + formatJson (preformatJson (script), (indentationLevel+2)));
+						}
+						
+						i += (posOfEndOfTag-endingPosOfCurrentTag);
 					}
 				}
 				if (currentHtmlElement == "style") {
@@ -591,13 +613,14 @@ let preformatHtml = function (inputCode) {
 					if (currentAttributeName == "style") {
 						let posOfEndOfTag = i;
 						for (let n = (i+1); n < inputCode.length; n ++) {
-							if (inputCode [n+1] == "'" || inputCode [n+1] == '"') {
+							if (inputCode [n+1] == "'" || inputCode [n+1] == '"'  /* && inputCod [n+2] == "/" */) {
 								posOfEndOfTag = n;
 								
 								break;
 							}
 						}
 						let style = inputCode.slice ((i+1), (posOfEndOfTag+1));
+						
 						preformattedText = (attributeInitiator + "\n" + formatCss (preformatCss (style), (indentationLevel)));
 						
 						i += (posOfEndOfTag-i); // Move past the style content
@@ -612,25 +635,21 @@ let preformatHtml = function (inputCode) {
 					if (inputCode [n] != '"' && inputCode [n] != "'") currentAttributeValue = (inputCode [n]+currentAttributeValue);
 					else break;
 				}
+				
+				if (inputCode [i+1].trim () != "") preformattedText = (letter+" ");
+				
 				insideAnAttributeValue = false;
 				
-				// USE CURRENT ATTRIBUTE NAME AND VALUE HERE
-				if (currentAttributeName == "style") {
-					// perform css formatting here.
-					//alert ("Hey, come here.");
-					
-				} /*else if (currentAttributeName == "style") {
-					
-				}*/
 				currentAttributeName = "";
 				currentAttributeValue = "";
 			}
 		} else {
 			if (nextLetter == "=") {
 				for (let n = (i); n > 0; n --) {
-					if (/*!textIsAFluff */(inputCode [n].trim () != "")) currentAttributeName = (inputCode [n]+currentAttributeName);
+					if (inputCode [n].trim () != "" && inputCode [n] != "\"" && inputCode [n] != "'") currentAttributeName = (inputCode [n]+currentAttributeName);
 					else break;
 				}
+				
 				insideAnAttributeName = true;
 			}
 		}
@@ -649,7 +668,7 @@ let preformatHtml = function (inputCode) {
 					}
 				}
 			} else if (letter == "\n") {
-				
+				preformattedText = "";
 			} else {
 				preformattedText = letter;
 			}
@@ -670,7 +689,7 @@ let formatHtml = function (inputCode) {
 	
 	let indentationLevel = 0;
 	
-	let insideAnOpeningTag = false;
+	let insideAnOpe0ningTag = false;
 	let insideATag = false;
 	let insideAClosingTag = false;
 	let insideAnAttributeName = false;
@@ -685,6 +704,8 @@ let formatHtml = function (inputCode) {
 	let currentTagFullContent = "";
 	let startingPosOfCurrentTag = 0;
 	let endingPosOfCurrentTag = 0;
+	
+	let selfClosingTags = ["img", "br", "link", "hr", "input", "meta"];
 	
 	for (let i = 0; i < inputCode.length; i ++) {
 		let letter = inputCode [i];
@@ -723,7 +744,7 @@ let formatHtml = function (inputCode) {
 				
 				
 				for (let n = (i+1); n < inputCode.length; n ++) {
-					if (inputCode [n].trim () == "") {
+					if (inputCode [n].trim () == "" || inputCode [n] == ">") {
 						break
 					} else {
 						currentHtmlElement += inputCode [n];
@@ -738,11 +759,11 @@ let formatHtml = function (inputCode) {
 						endingPosOfCurrentTag = n;
 					}
 				}
-				currentTagFullContent = (inputCode.slice (startingPosOfCurrentTag, endingPosOfCurrentTag)).toLowerCase ();
+				currentTagFullContent = (inputCode.slice (startingPosOfCurrentTag, (endingPosOfCurrentTag+1))).toLowerCase ();
 				
 				formattedText = ("\n" + padText ("<", indentationSpacing, indentationLevel));
 				
-				indentationLevel += 1;
+				if (selfClosingTags.indexOf (currentHtmlElement) == -1) indentationLevel += 1;
 			} else if (nextLetter == "/") {
 				insideAnOpeningTag = false;
 				insideAClosingTag = true;
@@ -779,7 +800,7 @@ let formatHtml = function (inputCode) {
 			}
 			if (insideATag) {
 				if (nextLetter == "<") formattedText = ">";
-				else if (currentHtmlElement == "style") formattedText = (">\n" + padText ("", indentationSpacing, (indentationLevel+2)));
+				else if (currentHtmlElement == "style") formattedText = (">\n" + padText ("", indentationSpacing, (indentationLevel)));
 				else formattedText = (">" + "\n" + padText ("", indentationSpacing, indentationLevel));
 				
 				if (insideAnOpeningTag) {
@@ -827,7 +848,7 @@ let formatHtml = function (inputCode) {
 
 
 let purg = function (inputCode, fileType="html") {
-
+	
 	fileType = fileType.toLowerCase ();
 	let purgdCode = "";
 	
