@@ -15,7 +15,6 @@ import htmlMainFormatter from './html-formatter/main-formatter';
 
 
 let purg = function (inputCode, fileType="html") {
-	
 	fileType = fileType.toLowerCase ();
 	let purgdCode = "";
 	
