@@ -1,8 +1,8 @@
 
 
-export let indentationSpacing = "	";
+let indentationSpacing = "	";
 
-export let padText = function (text, paddingItem, lengthOfPadding, padInFront=true) {
+let padText = function (text, paddingItem, lengthOfPadding, padInFront=true) {
 	let paddedText = text;
 	
 	for (let i = 0; i < lengthOfPadding; i ++) {
@@ -25,7 +25,7 @@ let fluffTexts = [`\n`, " ", `\r`, `\t`, `
 	affecting the code.
 */
 
-export let textIsAFluff = function (text) {
+let textIsAFluff = function (text) {
 	let textIsFluff = false;
 	
 	if (fluffTexts.indexOf (text) != -1) {
@@ -34,7 +34,7 @@ export let textIsAFluff = function (text) {
 	
 	return textIsFluff;
 }
-export let defluffText = function (text) {
+let defluffText = function (text) {
 	let defluffedText = '';
 	
 	for (let i = 0; i < text.length; i ++) {
@@ -46,7 +46,7 @@ export let defluffText = function (text) {
 	return defluffedText
 }
 
-export let getPrevNonFluffLetter = function (currentPos, text) {
+let getPrevNonFluffLetter = function (currentPos, text) {
 	let prevLetter = ""; 
 	
 	for (let n = (currentPos-1); n > 0; n --) {
@@ -59,7 +59,7 @@ export let getPrevNonFluffLetter = function (currentPos, text) {
 	
 	return prevLetter;
 }
-export let getNextNonFluffLetter = function (currentPos, text) {
+let getNextNonFluffLetter = function (currentPos, text) {
 	let prevLetter = ""; 
 	
 	for (let n = (currentPos+1); n < text.length; n ++) {
@@ -75,7 +75,7 @@ export let getNextNonFluffLetter = function (currentPos, text) {
 
 
 // Special Characters and String Initiators
-export let textIsASpecialChar = function (text) {
+let textIsASpecialChar = function (text) {
 	let textIsSpecialChar = false;
 	
 	if (specialChars.indexOf (text) != -1) {
@@ -92,7 +92,20 @@ let specialChars = [
 	"(", ")", "?", ",", ".", "-", "'", "\"", "`"
 ];
 
-export let stringInitiators = ["'", "\"", "`"];
+let stringInitiators = ["'", "\"", "`"];
 
-export let openingBrackets = ["(", "[", "{"];
-export let closingBrackets = [")", "]", "}"];
+let openingBrackets = ["(", "[", "{"];
+let closingBrackets = [")", "]", "}"];
+
+module.exports = {
+	indentationSpacing: indentationSpacing,
+	padText: padText,
+	textIsAFluff: textIsAFluff,
+	defluffText: defluffText,
+	getPrevNonFluffLetter: getPrevNonFluffLetter,
+	getNextNonFluffLetter: getNextNonFluffLetter,
+	textIsASpecialChar: textIsASpecialChar,
+	stringInitiators: stringInitiators,
+	openingBrackets: openingBrackets,
+	closingBrackets: closingBrackets
+}

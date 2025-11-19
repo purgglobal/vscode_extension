@@ -1,8 +1,17 @@
 
 
-import { indentationSpacing, padText, textIsASpecialChar, stringInitiators } from "../bin/text";
+//import { indentationSpacing, padText, textIsASpecialChar, stringInitiators } from "../bin/text";
+import { createRequire } from "module";
+const require = createRequire (import.meta.url);
+const { indentationSpacing, padText, textIsASpecialChar, stringInitiators } = require ("../bin/text");
+const { cssPreformatter } = require ('../css-formatter/preformatter');
+const { cssMainFormatter } = require ('../css-formatter/main-formatter');
+const { jsPreformatter } = require ('../js-formatter/preformatter');
+const { jsMainFormatter } = require ('../js-formatter/main-formatter');
+const { jsonPreformatter } = require ('../json-formatter/preformatter');
+const { jsonMainFormatter } = require ('../json-formatter/main-formatter');
 
-let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
+export let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	let formattedCode = "";
 	
 	let indentationLevel = baseIndentationLevel;
@@ -149,4 +158,4 @@ let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	return formattedCode;
 }
 
-export default htmlMainFormatter;
+//export default htmlMainFormatter;

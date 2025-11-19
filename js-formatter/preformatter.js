@@ -1,11 +1,14 @@
 
 
-import { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar, stringInitiators } from "../bin/text";
+//import { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar, stringInitiators } from "../bin/text";
+import { createRequire } from "module";
+const require = createRequire (import.meta.url);
+const { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar, stringInitiators } = require ("../bin/text");
 
 let jsKeywords = ["let", "var", "const", "if", "else", "for",
 	"while", "switch", "case", "in", "of"];
 
-let jsPreformatter = function (inputCode) {
+export let jsPreformatter = function (inputCode) {
 	let preformattedCode = [];
 	
 	let insideAString = false;
@@ -66,4 +69,4 @@ let jsPreformatter = function (inputCode) {
 	return preformattedCode;
 }
 
-export default jsPreformatter;
+//export default jsPreformatter;

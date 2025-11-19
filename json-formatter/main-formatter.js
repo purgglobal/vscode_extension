@@ -1,7 +1,10 @@
 
-import { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } from "../bin/text";
+//import { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } from "../bin/text";
+import { createRequire } from "module";
+const require = createRequire (import.meta.url);
+const { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } = require ("../bin/text");
 
-let jsonMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
+export let jsonMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	let formattedCode = "";
 
 	let indentationLevel = baseIndentationLevel;
@@ -75,4 +78,4 @@ let jsonMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	return formattedCode;
 }
 
-export default jsonMainFormatter;
+//export default jsonMainFormatter;

@@ -3,7 +3,7 @@
   "displayName": "Purg",
   "publisher": "purg",
   "description": "A lightweight code refurbisher and organizer.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": "https://github.com/purgglobal/vscode_extension.git",
   "engines": {
     "vscode": "^1.102.0"
@@ -11,7 +11,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": ["onCommand:extension.purg"],
+  "activationEvents": ["onCommand:purg.purg"],
   "main": "./extension.js",
   "contributes": {
     "commands": [{

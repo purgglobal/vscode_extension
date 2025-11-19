@@ -5,9 +5,12 @@
 */
 
 
-import { indentationSpacing, padText } from "../bin/text";
+//import { indentationSpacing, padText } from "../bin/text";
+import { createRequire } from "module";
+const require = createRequire (import.meta.url);
+const { indentationSpacing, padText } = require ("../bin/text");
 
-let cssMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
+export let cssMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	let formattedCode = "";
 	
 	let indentationLevel = baseIndentationLevel;
@@ -101,4 +104,4 @@ let cssMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	return formattedCode;
 }
 
-export default cssMainFormatter;
+//export default cssMainFormatter;

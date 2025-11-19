@@ -1,9 +1,12 @@
 
-import { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar } from "../bin/text";
+//import { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar } from "../bin/text";
+import { createRequire } from "module";
+const require = createRequire (import.meta.url);
+const { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar } = require ("../bin/text");
 
 let jsonKeywords = [];
 
-let jsonPreformatter = function (inputCode) {
+export let jsonPreformatter = function (inputCode) {
 	let preformattedCode = [];
 	
 	let codelet = "";
@@ -36,4 +39,4 @@ let jsonPreformatter = function (inputCode) {
 	return preformattedCode;
 }
 
-export default jsonPreformatter;
+//export default jsonPreformatter;

@@ -1,8 +1,11 @@
 
 
-import { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } from "../bin/text";
+//import { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } from "../bin/text";
+import { createRequire } from "module";
+const require = createRequire (import.meta.url);
+const { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } = require ("../bin/text");
 
-let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
+export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	let formattedCode = "";
 	
 	let indentationLevel = baseIndentationLevel;
@@ -130,4 +133,4 @@ let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	return formattedCode;
 }
 
-export default jsMainFormatter;
+//export default jsMainFormatter;

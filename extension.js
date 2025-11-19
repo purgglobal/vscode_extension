@@ -1,17 +1,28 @@
-const vscode = require('vscode');
 
-/**
- * @param {vscode.ExtensionContext}
- */
-
-import cssPreformatter from './css-formatter/preformatter';
+/*import cssPreformatter from './css-formatter/preformatter';
 import cssMainFormatter from './css-formatter/main-formatter';
 import jsPreformatter from './js-formatter/preformatter';
 import jsMainFormatter from './js-formatter/main-formatter';
 import jsonPreformatter from './json-formatter/preformatter';
 import jsonMainFormatter from './json-formatter/main-formatter';
 import htmlPreformatter from './html-formatter/preformatter';
-import htmlMainFormatter from './html-formatter/main-formatter';
+import htmlMainFormatter from './html-formatter/main-formatter';*/
+
+const { cssPreformatter } = require ('./css-formatter/preformatter');
+const { cssMainFormatter } = require ('./css-formatter/main-formatter');
+const { jsPreformatter } = require ('./js-formatter/preformatter');
+const { jsMainFormatter } = require ('./js-formatter/main-formatter');
+const { jsonPreformatter } = require ('./json-formatter/preformatter');
+const { jsonMainFormatter } = require ('./json-formatter/main-formatter');
+const { htmlPreformatter } = require ('./html-formatter/preformatter');
+const { htmlMainFormatter } = require ('./html-formatter/main-formatter');
+
+const vscode = require('vscode');
+
+/**
+ * @param {vscode.ExtensionContext}
+ */
+
 
 
 let purg = function (inputCode, fileType="html") {
