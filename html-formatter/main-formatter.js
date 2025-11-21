@@ -3,7 +3,7 @@
 //import { indentationSpacing, padText, textIsASpecialChar, stringInitiators } from "../bin/text";
 import { createRequire } from "module";
 const require = createRequire (import.meta.url);
-const { indentationSpacing, padText, textIsASpecialChar, stringInitiators } = require ("../bin/text");
+const { indentationSpacing, padText, textIsASpecialChar, stringInitiators, textIsAFluff } = require ("../bin/text");
 const { cssPreformatter } = require ('../css-formatter/preformatter');
 const { cssMainFormatter } = require ('../css-formatter/main-formatter');
 const { jsPreformatter } = require ('../js-formatter/preformatter');
@@ -27,6 +27,8 @@ export let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=
 	let currentHtmlAttribute = "";
 	let currentHtmlAttributeValue = "";
 	
+	let tagContentStack = [""];
+	
 	let attributes = [];
 	
 	for (let i = 0; i < preformattedCode.length; i ++) {
@@ -44,41 +46,50 @@ export let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=
 					"value": "",
 				});
 			} else if (codelet == ">") {
+				let tagContent = ``;
+				
 				formattedCodelet = ">";
 				
-				let tagContent = "";
-				
-				if (currentHtmlElement == "style" || currentHtmlElement == "script") {
-					for (let j = (i+1); j < (preformattedCode.length-1); j ++) {
-						if (preformattedCode [j] == "<" && preformattedCode [j+1] == "/" && preformattedCode [j+2] == currentHtmlElement) {
-							i = (j-1); // we are deviating from the mormal prpgramme flow here.
-							
-							break;
-						} else {
-							tagContent += preformattedCode [j];
-						}
+				for (let j = (i+1); j < (preformattedCode.length-1); j ++) {
+					if (preformattedCode [j] == "<" && preformattedCode [j+1] == "/" && preformattedCode [j+2] == currentHtmlElement) {
+						if (currentHtmlElement == "style" || currentHtmlElement == "script") i = (j-1); // we are deviating from the mormal prpgramme flow here.
+						break;
+					} else {
+						tagContent += preformattedCode [j];
 					}
 				}
-				let specialTagContent = "";
+				tagContentStack.push (tagContent);
+				
+				let specialTagContent = ``;
 				switch (currentHtmlElement.toLowerCase ()) {
 					case "script":
 						let [ scriptAttribute ] = attributes.filter ((attribute) => { if (attribute.attribute == "type") return attribute});
 						
-						if (scriptAttribute) {
-							if (scriptAttribute.value.indexOf ("javascript") != -1 && tagContent != "") specialTagContent = "\n" + jsMainFormatter (jsPreformatter (tagContent), indentationLevel);
+						if (!textIsAFluff (tagContent)) {
+							if (scriptAttribute) {
+								if ((scriptAttribute.value.indexOf ("javascript") != -1) && tagContent != "") specialTagContent = "\n" + jsMainFormatter (jsPreformatter (tagContent), indentationLevel);
+								if ((scriptAttribute.value.indexOf ("json") != -1) && tagContent != "") specialTagContent = "\n" + jsonMainFormatter (jsonPreformatter (tagContent), indentationLevel);
+							} else {
+								specialTagContent = "\n" + jsMainFormatter (jsPreformatter (tagContent), indentationLevel);
+							}
+							specialTagContent += ("\n" + padText ("", indentationSpacing, (indentationLevel-1)));
 						}
 						break;
 					case "style":
 						let [ cssAttribute ] = attributes.filter ((attribute) => { if (attribute.attribute == "type") return attribute});
 						
-						if (cssAttribute) {
-							if (cssAttribute.value.indexOf ("css") != -1 && tagContent != "") specialTagContent = "\n" + cssMainFormatter (cssPreformatter (tagContent), indentationLevel);
+						if (!textIsAFluff (tagContent)) {
+							if (cssAttribute) {
+								if (cssAttribute.value.indexOf ("css") != -1 && tagContent != "") specialTagContent = "\n" + cssMainFormatter (cssPreformatter (tagContent), indentationLevel);
+							} else {
+								specialTagContent = "\n" + cssMainFormatter (cssPreformatter (tagContent), indentationLevel);
+							}
+							specialTagContent += ("\n" + padText ("", indentationSpacing, (indentationLevel-1)));
 						}
+						
 						break;
 				}
 				formattedCodelet += specialTagContent;
-				
-				if (prevCodelet == "/") indentationLevel -= 1; // For self-closing tags.
 				
 				insideAnOpeningTag = false;		
 			} else {
@@ -129,13 +140,13 @@ export let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=
 					insideAClosingTag = true;
 					insideAnOpeningTag = false;
 					
-					formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel-1)) + "<");
+					if (tagContentStack [tagContentStack.length-1].indexOf ("<") != -1) formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel-1)) + "<");
+					tagContentStack.pop ();
 					
 					indentationLevel -= 1;
 				} else {
 					currentHtmlElement = ((nextCodelet == "!") ? preformattedCode [i+2] : nextCodelet);
 					attributes = [];
-					
 					
 					formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + "<");
 					
@@ -147,7 +158,7 @@ export let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=
 				}
 			} else {
 				if (prevCodelet == ">") {
-					formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
+					if (tagContentStack [tagContentStack.length-1].indexOf ("<") != -1) formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
 				}
 			}
 		}

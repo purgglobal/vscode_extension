@@ -5,6 +5,12 @@ import { createRequire } from "module";
 const require = createRequire (import.meta.url);
 const { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } = require ("../bin/text");
 
+let variableDeclaraingKeywords = ["var", "let", "const"];
+let isAVariableDeclaringKeyword = function (text) {
+	if (variableDeclaraingKeywords.indexOf (text) == -1) return false;
+	else return true;
+}
+
 export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0) {
 	let formattedCode = "";
 	
@@ -15,6 +21,7 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 	let currentStringInitiator = "";
 	
 	let insideAForLoopHeader = false;
+	let insideImportOrDestructuringStatement = false;
 	
 	for (let i = 0; i < preformattedCode.length; i ++) {
 		let codelet = preformattedCode [i];
@@ -33,11 +40,13 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 		} else {
 			if (openingBrackets.indexOf (codelet) != -1) {
 				if (codelet == "{") {
-					formattedCodelet = "{\n";
+					if (prevCodelet == "import" || isAVariableDeclaringKeyword (prevCodelet)) insideImportOrDestructuringStatement = true;
 					
-					if (insideAForLoopHeader) insideAForLoopHeader = false;
+					if (!insideImportOrDestructuringStatement) formattedCodelet = "{\n";
 					
 					indentationLevel += 1;
+				} else if (codelet == "(") {
+					if ((prevCodelet == "function" || prevCodelet == "=") && nextCodelet == "{") insideImportOrDestructuringStatement = true;
 				}
 			} else if (closingBrackets.indexOf (codelet) != -1) {
 
@@ -45,17 +54,26 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 					if (nextCodelet != "." && nextCodelet != ":" && nextCodelet != ";") formattedCodelet = codelet+" "; // => X1		
 				}
 				
+				if (codelet == ")") {
+					if (insideAForLoopHeader) insideAForLoopHeader = false;
+				}
+				
 				if (codelet == "}") {
-					formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel-1)) + "}");
-					if (nextCodelet != "," && (closingBrackets.indexOf (nextCodelet) == -1)) formattedCodelet += " "; // see if this can be merged with X1 above
+					if (insideImportOrDestructuringStatement) formattedCodelet = (" " + codelet);
+					else formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel-1)) + "}");
 					
+					if (nextCodelet != "," && nextCodelet != ";" && (closingBrackets.indexOf (nextCodelet) == -1)) formattedCodelet += " "; // see if this can be merged with X1 above
+					
+					if (insideImportOrDestructuringStatement) insideImportOrDestructuringStatement = false;
 					indentationLevel -= 1;
 				}
 			} else {
 				if (prevCodelet == "{") {
-					formattedCodelet = (padText ("", indentationSpacing, (indentationLevel)) + codelet);
+					if (insideImportOrDestructuringStatement) formattedCodelet = (" " + codelet);
+					else  formattedCodelet = (padText ("", indentationSpacing, (indentationLevel)) + codelet);
+
 				} else if (prevCodelet == "}") {
-					if (codelet != ",") formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
+					if (codelet != "," && codelet != ";" && codelet != "=" && codelet != "from") formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
 				} else if (prevCodelet == "\n") {
 					formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
 				}
@@ -97,7 +115,7 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 						}
 					} else {
 						if (codelet == ";") {
-							if (!insideAForLoopHeader) formattedCodelet = ";\n";
+							if (!insideAForLoopHeader && (i != preformattedCode.length-1)) formattedCodelet = ";\n";
 							else formattedCodelet = "; ";
 						} else {
 							if (prevCodelet == ";") {

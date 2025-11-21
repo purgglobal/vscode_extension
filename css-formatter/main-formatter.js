@@ -39,7 +39,8 @@ export let cssMainFormatter = function (preformattedCode, baseIndentationLevel=0
 					insideAnAttributeName = true;
 				}
 			} else if (codelet == "}") {
-				formattedCodelet = padText ("", indentationSpacing, (indentationLevel-1)) + "}\n\n";
+				formattedCodelet = padText ("", indentationSpacing, (indentationLevel-1)) + "}";
+				if (i != (preformattedCode.length-1)) formattedCodelet += "\n\n";
 				
 				indentationLevel -= 1;
 			} else {

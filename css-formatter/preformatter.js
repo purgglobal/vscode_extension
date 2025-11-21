@@ -9,6 +9,7 @@ export let cssPreformatter = function (inputCode) {
 	let preformattedCode = [];
 	
 	let codelet = "";
+	let insideAValue = false;
 	
 	for (let i = 0; i < inputCode.length; i ++) {
 		let letter = inputCode [i];
@@ -16,11 +17,20 @@ export let cssPreformatter = function (inputCode) {
 		let prevLetter = getPrevNonFluffLetter (i, inputCode);
 		let nextLetter = getNextNonFluffLetter (i, inputCode);
 		
-		
 		if (textIsAFluff (letter)) {
 			if (codelet.length != 0) preformattedCode.push (codelet);
 			
-			if (letter == " " && inputCode [i-1] != " ") preformattedCode.push (letter);
+			if (insideAValue) if (letter == " " && inputCode [i-1] != " ") preformattedCode.push (letter);
+			else {
+				if (letter == ` `) {
+					for (let j = i; j < inputCode.length; j ++) {
+							if (!textIsAFluff (inputCode [j])) {
+							i = (j-1);
+							break;
+						}
+					}
+				}
+			}
 			
 			codelet = "";
 		} else {
@@ -29,6 +39,9 @@ export let cssPreformatter = function (inputCode) {
 				codelet = letter;
 				preformattedCode.push (codelet);
 				codelet = "";
+				
+				if (letter == ":") insideAValue = true;
+				if (letter == ";") insideAValue = false;
 			} else {
 				codelet += letter;
 			}

@@ -26,10 +26,19 @@ let fluffTexts = [`\n`, " ", `\r`, `\t`, `
 */
 
 let textIsAFluff = function (text) {
-	let textIsFluff = false;
-	
-	if (fluffTexts.indexOf (text) != -1) {
-		textIsFluff = true;
+	let textIsFluff = true;
+	if (text) {
+		textIsFluff = false;
+		
+		for (let j = 0; j < text.length; j ++) {
+			if (fluffTexts.indexOf (text [j]) != -1) {
+				textIsFluff = true;
+			} else {
+				textIsFluff = false;
+				
+				break;
+			}
+		}
 	}
 	
 	return textIsFluff;
