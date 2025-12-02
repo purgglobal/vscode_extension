@@ -3,7 +3,7 @@
   "displayName": "Purg",
   "publisher": "purg",
   "description": "A lightweight code refurbisher and organizer.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "repository": "https://github.com/purgglobal/vscode_extension.git",
   "engines": {
     "vscode": "^1.102.0"

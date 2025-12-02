@@ -1,8 +1,6 @@
 
 let htmlKeywords = [];
 
-
-//import { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar, } from "../bin/text";
 import { createRequire } from "module";
 const require = createRequire (import.meta.url);
 const { textIsAFluff, getPrevNonFluffLetter, getNextNonFluffLetter, textIsASpecialChar, } = require ("../bin/text");
@@ -55,5 +53,3 @@ export let htmlPreformatter = function (inputCode) {
 	
 	return preformattedCode;
 }
-
-//export default htmlPreformatter;

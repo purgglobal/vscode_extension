@@ -1,6 +1,4 @@
 
-
-//import { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } from "../bin/text";
 import { createRequire } from "module";
 const require = createRequire (import.meta.url);
 const { indentationSpacing, padText, textIsAFluff, textIsASpecialChar, stringInitiators, openingBrackets, closingBrackets } = require ("../bin/text");
@@ -29,10 +27,10 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 		let nextCodelet = (i != (preformattedCode.length-1)) ? preformattedCode [i+1] : "";
 		
 		let formattedCodelet = codelet;
-
 		
 		if (insideAString) {
-			if (codelet == currentStringInitiator) {
+			if (codelet == currentStringInitiator && prevCodelet != "\\") {
+				if (!textIsASpecialChar (nextCodelet)) formattedCodelet += " ";
 				insideAString = false;
 				
 				currentStringInitiator = "";
@@ -70,7 +68,7 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 			} else {
 				if (prevCodelet == "{") {
 					if (insideImportOrDestructuringStatement) formattedCodelet = (" " + codelet);
-					else  formattedCodelet = (padText ("", indentationSpacing, (indentationLevel)) + codelet);
+					else formattedCodelet = (padText ("", indentationSpacing, (indentationLevel)) + codelet);
 
 				} else if (prevCodelet == "}") {
 					if (codelet != "," && codelet != ";" && codelet != "=" && codelet != "from") formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
@@ -84,48 +82,69 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 					if (textIsASpecialChar (codelet) && textIsASpecialChar (nextCodelet)) {
 						if (codelet == "=") {
 							if (nextCodelet != ">" && nextCodelet != "=") formattedCodelet += " ";
-						}
-
-						if (codelet == ">") formattedCodelet += " ";
-						
-						if (codelet == ";") {
+						} else if (codelet == ">") {
+							formattedCodelet += " ";
+						} else if (codelet == ";") {
 							if (!insideAForLoopHeader) formattedCodelet = ";\n";
 							else formattedCodelet = "; ";
 						}
-						if (codelet == "/" && nextCodelet == "/") {
-							// We are breaking out the normal programme flow down here.
-							let commentedCodelets = [];
-							for (let j = (i+2); j < preformattedCode.length; j ++) {
-								if (preformattedCode [j] == "\n") {
-									i = j; // We are breaking out the normal programme flow down here.
-									break; 
+						else if (codelet == "/") {
+							if (nextCodelet == "/") {
+								// We are breaking out the normal programme flow down here.
+								let commentedCode = preformattedCode [i+2];
+								
+								//let formattedCommentedCode = jsMainFormatter (jsPreformatter (commentedCode), indentationLevel + 1);
+								let formattedCommentedCode = commentedCode;
+								let newlineFreeFormattedCommentedCode = "";
+								for (let j = 0; j < formattedCommentedCode.length; j ++) {
+									if (formattedCommentedCode [j] != "\n") {
+										newlineFreeFormattedCommentedCode += formattedCommentedCode [j];
+									}
+								}
+								
+								if (formattedCode [formattedCode.length-1] != "\n") formattedCodelet = "\n";
+								else formattedCodelet = "";
+
+								formattedCodelet += (padText ("", indentationSpacing, (indentationLevel)) + "//" + newlineFreeFormattedCommentedCode);
+								formattedCodelet += ("\n" + padText ("", indentationSpacing, (indentationLevel)));
+								i += 2;
+							} else if (nextCodelet == "*") {
+								let commentedCode = preformattedCode [i+2];
+								
+								if (commentedCode.length != 0) {
+									let formattedCommentedCode = jsMainFormatter (jsPreformatter (commentedCode), indentationLevel + 1);
+											
+									formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + "/*\n");
+									formattedCodelet += formattedCommentedCode;
+									formattedCodelet += ("\n" + padText ("", indentationSpacing, (indentationLevel)) + "*/");
 								} else {
-									commentedCodelets.push (preformattedCode [j]);
+									formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + "/**/");
 								}
+								i+=4;
+								if ((i) != (preformattedCode.length-1)) formattedCodelet += "\n";
 							}
-							let formattedCommentedCode = jsMainFormatter (commentedCodelets);
-							let newlineFreeFormattedCommentedCode = "";
-							for (let j = 0; j < formattedCommentedCode.length; j ++) {
-								if (formattedCommentedCode [j] != "\n") {
-									newlineFreeFormattedCommentedCode += formattedCommentedCode [j];
-								}
-							}
-							
-							formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + "//" + newlineFreeFormattedCommentedCode);
 						}
 					} else {
 						if (codelet == ";") {
 							if (!insideAForLoopHeader && (i != preformattedCode.length-1)) formattedCodelet = ";\n";
 							else formattedCodelet = "; ";
 						} else {
-							if (prevCodelet == ";") {
+							if (prevCodelet == ";" || (prevCodelet == "/" && preformattedCode [i-2] == "*")) { // d check on "/" and "*" is to know if we just exited a multiline comment
 								if (!insideAForLoopHeader) formattedCodelet = padText ("", indentationSpacing, (indentationLevel)) + codelet;
+							} else {
+								if (isAVariableDeclaringKeyword (codelet)) {
+									if (formattedCode [formattedCode.length-1] != "\n") {
+										if (prevCodelet != "(" && prevCodelet != "export") {
+											formattedCodelet = ("\n" + padText ("", indentationSpacing, (indentationLevel)) + codelet);
+										}
+									}
+								}
 							}
 							
 							if (textIsAFluff (codelet)) {
 								formattedCodelet = "";
 							} else {
-								if (stringInitiators.indexOf (codelet) == -1 && codelet != "." && codelet != "_" && nextCodelet != "_" && nextCodelet != "." && nextCodelet != ":" && nextCodelet != ";" && nextCodelet != ",") {
+								if (stringInitiators.indexOf (codelet) == -1 && codelet != "." && codelet != "!" && codelet != "_" && nextCodelet != "_" && nextCodelet != "." && nextCodelet != ":" && nextCodelet != ";" && nextCodelet != ",") {
 									formattedCodelet += " ";
 								}
 								
@@ -150,5 +169,3 @@ export let jsMainFormatter = function (preformattedCode, baseIndentationLevel=0)
 	
 	return formattedCode;
 }
-
-//export default jsMainFormatter;

@@ -1,13 +1,4 @@
 
-/*import cssPreformatter from './css-formatter/preformatter';
-import cssMainFormatter from './css-formatter/main-formatter';
-import jsPreformatter from './js-formatter/preformatter';
-import jsMainFormatter from './js-formatter/main-formatter';
-import jsonPreformatter from './json-formatter/preformatter';
-import jsonMainFormatter from './json-formatter/main-formatter';
-import htmlPreformatter from './html-formatter/preformatter';
-import htmlMainFormatter from './html-formatter/main-formatter';*/
-
 const { cssPreformatter } = require ('./css-formatter/preformatter');
 const { cssMainFormatter } = require ('./css-formatter/main-formatter');
 const { jsPreformatter } = require ('./js-formatter/preformatter');
@@ -39,9 +30,14 @@ let purg = function (inputCode, fileType="html") {
 		case "json":
 			purgdCode = jsonMainFormatter (jsonPreformatter (inputCode));
 			break;
+		case "jsonc":
+			purgdCode = jsonMainFormatter (jsonPreformatter (inputCode));
+			break;
 		case "html":
 			purgdCode = htmlMainFormatter (htmlPreformatter (inputCode));
 			break;
+		case "default":
+			purgdCode = inputCode;
 	}
 	
 	return purgdCode;

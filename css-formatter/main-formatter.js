@@ -4,8 +4,6 @@
 	and return a string consisting of this codelet
 */
 
-
-//import { indentationSpacing, padText } from "../bin/text";
 import { createRequire } from "module";
 const require = createRequire (import.meta.url);
 const { indentationSpacing, padText } = require ("../bin/text");
@@ -104,5 +102,3 @@ export let cssMainFormatter = function (preformattedCode, baseIndentationLevel=0
 	
 	return formattedCode;
 }
-
-//export default cssMainFormatter;

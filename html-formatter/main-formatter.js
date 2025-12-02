@@ -1,6 +1,5 @@
 
 
-//import { indentationSpacing, padText, textIsASpecialChar, stringInitiators } from "../bin/text";
 import { createRequire } from "module";
 const require = createRequire (import.meta.url);
 const { indentationSpacing, padText, textIsASpecialChar, stringInitiators, textIsAFluff } = require ("../bin/text");
@@ -168,5 +167,3 @@ export let htmlMainFormatter = function (preformattedCode, baseIndentationLevel=
 	
 	return formattedCode;
 }
-
-//export default htmlMainFormatter;

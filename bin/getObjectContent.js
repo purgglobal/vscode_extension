@@ -1,11 +1,11 @@
 
+// Used to get infomation about an Object
 let getObjectContent = function (object, indentationLevel=-1) {
 	let objectContent = ``;
 	let indentationSpacing = `    `;
 	
 	let n = 0;
 	for (let prop in object) {
-		//let spacing = duplicateTextNTimes (indentationSpacing, indentationLevel);
 		let spacing = padText ("", indentationSpacing, indentationLevel);
 		
 		if (typeof (object [prop]) != `object`) {
